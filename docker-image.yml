@@ -1,0 +1,53 @@
+name: Create Release
+
+on:
+  push:
+    branches:
+    - main
+  workflow_dispatch:
+    inputs:
+      dockerhub:
+        type: string
+        default: ""
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout code
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        with:
+          fetch-depth: 0
+          repository: 'thejurysays/external-secrets'
+          
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          #username: ${{ secrets.DOCKERHUB_USERNAME }}
+          username: ivgonzalez439
+          #password: ${{ secrets.DOCKERHUB_TOKEN }}
+          password: ${{ github.event.inputs.dockerhub }}
+
+      - name: Get image tag from git tag
+        if: false
+        run: |
+          TAG=$(git tag --sort "-committerdate" | cut -d$'\n' -f1)
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+
+      - name: Build secrets safe image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile.standalone
+          push: true
+          tags: ivgonzalez439/external-secrets:latest
