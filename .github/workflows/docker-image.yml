@@ -1,14 +1,10 @@
-name: Create Release
+name: ESO Docker Image
 
 on:
   push:
     branches:
     - main
   workflow_dispatch:
-    inputs:
-      dockerhub:
-        type: string
-        default: ""
 
 permissions:
   contents: write
@@ -33,10 +29,8 @@ jobs:
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
-          #username: ${{ secrets.DOCKERHUB_USERNAME }}
-          username: ivgonzalez439
-          #password: ${{ secrets.DOCKERHUB_TOKEN }}
-          password: ${{ github.event.inputs.dockerhub }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Get image tag from git tag
         if: false
@@ -50,4 +44,4 @@ jobs:
           context: .
           file: Dockerfile.standalone
           push: true
-          tags: ivgonzalez439/external-secrets:latest
+          tags: thejurysays/external-secrets:latest
