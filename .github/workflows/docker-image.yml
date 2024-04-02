@@ -19,6 +19,7 @@ jobs:
         with:
           fetch-depth: 0
           repository: 'thejurysays/external-secrets'
+          ref: 'develop'
           
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
