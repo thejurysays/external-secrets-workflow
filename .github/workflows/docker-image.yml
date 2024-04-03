@@ -1,10 +1,18 @@
 name: ESO Docker Image
 
 on:
-  push:
-    branches:
-    - main
   workflow_dispatch:
+    inputs:
+      version_tag:
+        default: latest
+        required: true
+        description: Image tag version
+        type: string
+      target_branch:
+        default: develop
+        required: true
+        description: Branch from where the image going to be build
+        type: string
 
 permissions:
   contents: write
@@ -19,7 +27,7 @@ jobs:
         with:
           fetch-depth: 0
           repository: 'thejurysays/external-secrets'
-          ref: 'develop'
+          ref: ${{ github.event.inputs.target_branch }}
           
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -33,16 +41,10 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Get image tag from git tag
-        if: false
-        run: |
-          TAG=$(git tag --sort "-committerdate" | cut -d$'\n' -f1)
-          echo "tag=$TAG" >> $GITHUB_OUTPUT
-
       - name: Build secrets safe image
         uses: docker/build-push-action@v5
         with:
           context: .
           file: Dockerfile.standalone
           push: true
-          tags: thejurysays/external-secrets:latest
+          tags: thejurysays/external-secrets:${{ github.event.inputs.version_tag }}
